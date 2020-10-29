@@ -1,13 +1,57 @@
-from tkinter import Tk, Canvas, Frame, Label, Entry, Button, W , E
+"""
+ user : 'postgres',
+    host : 'localhost',
+    password : 'postgres',
+    database : 'typescriptdatabase',
+    port : 5432
+"""
+
+from tkinter import Tk, Canvas, Frame, Label, Entry, Button, W , E, Listbox, END
 import psycopg2
 
 root = Tk()
 root.title("Python & PostgreSQL")
 
 def save_new_student(nombre,edad,direccion):
-    print(nombre)
-    print(edad)
-    print(direccion)
+    
+    #print(nombre)
+
+    conn = psycopg2.connect(dbname="tareas",
+        user="postgres",
+        password = "postgres", 
+        host="localhost",
+        port="5432")
+    
+    cursor = conn.cursor()
+    query = '''INSERT INTO students (name,address, age) VALUES (%s,%s,%s)'''
+    cursor.execute(query, (nombre,direccion,edad))
+    print("Data Saved")
+    conn.commit()
+    conn.close()
+    
+def display_students():
+    conn = psycopg2.connect(dbname="tareas",
+        user="postgres",
+        password = "postgres", 
+        host="localhost",
+        port="5432")
+    
+    cursor = conn.cursor()
+    query = '''SELECT * FROM students'''
+    cursor.execute(query)
+    row = cursor.fetchall()
+
+    listbox = Listbox(frame, width=20, height=5)
+    listbox.grid(row=10, columnspan=4, sticky=W+E)
+
+    for x in row:
+        listbox.insert(END,x)
+
+
+    conn.commit()
+    conn.close()
+
+
 
 # Canvas
 canvas = Canvas(root,height=380,width=400)
@@ -43,5 +87,10 @@ button = Button(frame,text="Add", command=lambda:save_new_student(entry_name.get
     entry_age.get(),
     entry_address.get()))
 button.grid(row=4,column=1, sticky=W+E)
+
+
+# BUSCAR
+
+display_students()
 
 root.mainloop()
